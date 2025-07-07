@@ -77,16 +77,23 @@ def get_object(nr):
     soup = BeautifulSoup(object_html, "lxml")
     tds = soup.find_all("td")
     for td in tds:
-        item = td.get_text()
+        item = td.get_text().strip()
         if waitfor == "quotation_text":
             quotation_text = item
-        if item == "\nmarkiertes Zitat":
-            marked_quotation = True
-        if item.endswith("Zitattext ohne Akzente"):
-            waitfor = "quotation_text"
-        else:
             waitfor = ""
-    if marked_quotation:
-        ret["quotation_text"] = quotation_text
+            continue
+        if waitfor == "chapter":
+            chapter = item
+            waitfor = ""
+            continue
+        if item == "markiertes Zitat":
+            marked_quotation = True
+        if item == "NTZ: Zitattext ohne Akzente":
+            waitfor = "quotation_text"
+        if item == "NTZ: Kapitel":
+            waitfor = "chapter"
+    ret["marked_quotation"] = marked_quotation
+    ret["quotation_text"] = quotation_text
+    ret["chapter"] = chapter
     object_html.close()
     return ret
