@@ -5,7 +5,7 @@
 from bs4 import BeautifulSoup
 import os
 
-html_re_folder = "html-re"
+html_re_folder = "isbtf_lxx_nt/html-re"
 
 books_translated_de = {
     'Mt': "Matthew",

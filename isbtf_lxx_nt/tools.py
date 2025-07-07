@@ -1,3 +1,8 @@
+from bs4 import BeautifulSoup
+import os
+
+html_re_folder = os.path.dirname(__file__) + "/html-re"
+
 # Convert ISBTF's internal book names into SWORD names
 books_isbtf_sword = {
     'Mt': "Matthew",
@@ -64,3 +69,24 @@ def passage_str_list(passage):
     verse = passage_arr[2]
     return book, chapter, verse
 
+def get_object(nr):
+    ret = dict()
+    marked_quotation = False
+    waitfor = ""
+    object_html = open(html_re_folder + "/" + nr + ".html", "r")
+    soup = BeautifulSoup(object_html, "lxml")
+    tds = soup.find_all("td")
+    for td in tds:
+        item = td.get_text()
+        if waitfor == "quotation_text":
+            quotation_text = item
+        if item == "\nmarkiertes Zitat":
+            marked_quotation = True
+        if item.endswith("Zitattext ohne Akzente"):
+            waitfor = "quotation_text"
+        else:
+            waitfor = ""
+    if marked_quotation:
+        ret["quotation_text"] = quotation_text
+    object_html.close()
+    return ret
