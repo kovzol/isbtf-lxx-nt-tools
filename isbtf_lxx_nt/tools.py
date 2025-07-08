@@ -76,24 +76,28 @@ def get_object(nr):
     object_html = open(html_re_folder + "/" + nr + ".html", "r")
     soup = BeautifulSoup(object_html, "lxml")
     tds = soup.find_all("td")
+
+    keys = {
+        "NTZ: Zitattext ohne Akzente": "quotation_text",
+        "NTZ: Kapitel": "chapter",
+        "NTZ: Buch": "book"
+    }
+
     for td in tds:
         item = td.get_text().strip()
-        if waitfor == "quotation_text":
-            quotation_text = item
-            waitfor = ""
-            continue
-        if waitfor == "chapter":
-            chapter = item
-            waitfor = ""
+        waitfor_used = False
+        for k in keys:
+            if waitfor == keys[k]:
+                ret[keys[k]] = item
+                waitfor = ""
+                waitfor_used = True
+        if waitfor_used:
             continue
         if item == "markiertes Zitat":
             marked_quotation = True
-        if item == "NTZ: Zitattext ohne Akzente":
-            waitfor = "quotation_text"
-        if item == "NTZ: Kapitel":
-            waitfor = "chapter"
+        for k in keys:
+            if item == k:
+                waitfor = keys[k]
     ret["marked_quotation"] = marked_quotation
-    ret["quotation_text"] = quotation_text
-    ret["chapter"] = chapter
     object_html.close()
     return ret
