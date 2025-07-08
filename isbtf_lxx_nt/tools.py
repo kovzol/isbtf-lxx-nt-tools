@@ -78,9 +78,16 @@ def get_object(nr):
     tds = soup.find_all("td")
 
     keys = {
-        "NTZ: Zitattext ohne Akzente": "quotation_text",
+        "NTZ: Buch": "book",
         "NTZ: Kapitel": "chapter",
-        "NTZ: Buch": "book"
+        "NTZ: Beginn Vers": "verse_start",
+        "NTZ: Ende Vers": "verse_end",
+        "NTZ: Zitattext ohne Akzente": "quotation_text",
+        "NTZ: Einleitung Buch": "intro_book",
+        "NTZ: Einleitung Kapitel": "intro_chapter",
+        "NTZ: Einleitung Beginn Vers": "intro_verse_start",
+        "NTZ: EInleitung Ende Vers": "intro_verse_end",
+        "NTZ: Einleitungstext ohne Akzente": "intro_text"
     }
 
     for td in tds:
@@ -99,5 +106,7 @@ def get_object(nr):
             if item == k:
                 waitfor = keys[k]
     ret["marked_quotation"] = marked_quotation
+    ret["book"] = books_isbtf_sword[ret["book"]]
+    ret["intro_book"] = books_isbtf_sword[ret["intro_book"]]
     object_html.close()
     return ret
