@@ -61,7 +61,7 @@ def object_nt_bibref(o):
 # o = get_object("845")
 # print(o)
 
-# extract_nt_objects("Acta")
+print(extract_nt_objects("Acta"))
 
 o = get_object("3797")
 print(o)

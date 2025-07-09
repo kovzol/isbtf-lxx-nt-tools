@@ -124,31 +124,33 @@ def get_object(nr):
     return ret
 
 def extract_nt_objects(book):
-    source = open(html_re_folder + "/" + book + ".html", "r")
-    soup = BeautifulSoup(source, "lxml")
-    lis = soup.find_all('li')
+    ret = []
+    identifier = None
+    nt_objects = []
+    nt_ot_objects = []
+
+    with open(html_re_folder + "/" + book + ".html") as file:
+        lis = [line.rstrip() for line in file]
+
     for li in lis:
-        items = str(li).split("\n")
-        # First line: "<li><a href="javascript:refresh_main(328, 0)">Acta 1, 20 (Neues Testament)</a> <ul><li><a href="javascript:refresh_main(3797, 328)">Acta 1, 20 (NT-Zitat-Adresse)</a></li>""
-        two_first_lines = items[0].split("<li>")
-        items.insert(1, two_first_lines[2])
-        items[0] = two_first_lines[1] # split the first line which contains a duplicate <li>
-        
-        nt_objects = []
-        nt_ot_objects = []
+        items = str(li).split("<li>")
+      
         for line in items:
             line = line.replace("Kön ", "Kön_")
             if "(Neues Testament)" in line: # unused
                 first_comma = line.index(',')
                 first_paren = line.index('(')
                 nt_head_object_nr = line[first_paren+1:first_comma] # e.g. 844
+                first_paren_end = line.index(')')
+                first_lxx_zitat = line.index(" (Neues Testament)")
+                identifier = line[first_paren_end+3:first_lxx_zitat] # e.g. Acta 1, 20
             if "(NT-Zitat-Adresse)" in line:
                 first_comma = line.index(',')
                 first_paren = line.index('(')
                 nt_obj = line[first_paren+1:first_comma] # e.g. 3918 (this can be repeated for another fragment)
             if "(LXX-Zitat-Adresse)" in line:
                 first_paren_end = line.index(')')
-                first_lxx_zitat = line.index(" (LXX-Zitat-Adresse")
+                first_lxx_zitat = line.index(" (LXX-Zitat-Adresse)")
                 ot_passage = line[first_paren_end+3:first_lxx_zitat] # e.g. Ps 2, 7
                 nt_objects.append([nt_obj, ot_passage]) # register this fragment pair for processing them below
             if "(LXX)" in line:
@@ -159,5 +161,9 @@ def extract_nt_objects(book):
                         first_comma = line.index(',')
                         ot_obj = line[first_paren+1:first_comma]
                         nt_ot_objects.append([nt_obj[0], ot_obj])
-        print(nt_ot_objects)
-    source.close()
+        if identifier != None and len(nt_ot_objects)>0 and len(nt_objects) == len(nt_ot_objects):
+            ret.append([identifier, nt_ot_objects])
+            identifier = None
+            nt_objects = []
+            nt_ot_objects = []
+    return ret
