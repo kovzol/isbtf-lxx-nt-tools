@@ -43,6 +43,29 @@ def object_nt_bibref(o):
     ret["i_azform"] = qlatin
     return ret
 
+def object_ot_bibref(o):
+    """
+    Extract data from OT object in bibref format.
+    :param o: input object
+    :return: various parts of the object as dict
+    """
+    ret = dict()
+    # Search for exact position of the quotation text in gnt:
+    bibref_passage_container = f'{o["book"]} {o["chapter"]}:{o["verse_start"]}'
+    l_container = lookup_n(1, "LXX" + " " + bibref_passage_container)
+    f_container = find_n(1, "LXX")[0] # TODO: This may be a longer list, fix this issue.
+    qlatin = text_n(2, o["quoted_text"])
+    q = find_n(2, "LXX")
+    for m in q:
+        if f_container[1] <= m[1] and m[2] <= f_container[2]:
+            match = m
+            break
+    ret["q_fullform"] = f'{match[0]} ({match[1]}-{match[2]})'
+    ret["q_verseonly"] = ret["q_fullform"].split(' ', 1)[1]
+    ret["q_azform"] = qlatin
+    return ret
+
+
 # print(passage_str_list("Lk 1 2"))
 # o = get_object("3918")
 # print(object_nt_bibref(o))
@@ -61,7 +84,11 @@ def object_nt_bibref(o):
 # o = get_object("845")
 # print(o)
 
-print(extract_nt_objects("Acta"))
+# print(extract_nt_objects("Acta"))
+
+for ntb in nt_books_isbtf:
+    nt_objects = extract_nt_objects(ntb)
+    print(ntb, len(nt_objects))
 
 o = get_object("3797")
 print(o)
@@ -69,6 +96,7 @@ print(object_nt_bibref(o))
 
 o = get_object("329")
 print(o)
+print(object_ot_bibref(o))
 
 o = get_object("4987")
 print(o)
@@ -76,3 +104,4 @@ print(object_nt_bibref(o))
 
 o = get_object("333")
 print(o)
+print(object_ot_bibref(o))

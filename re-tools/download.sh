@@ -20,4 +20,4 @@ for i in `seq 1 30000`; do
 grep "bitte melden" *.html | cut -f1 -d: | xargs rm
 
 # 4. Move all HTML downloads in the static file database.
-mv *.html ../html-re
+mv *.html ../isbtf-lxx-nt/html-re

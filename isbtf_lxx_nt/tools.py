@@ -55,6 +55,9 @@ books_isbtf_sword = {
     'Lk': "Luke"
     }
 
+nt_books_isbtf = ["Mt", "Mk", "Lk", "Joh", "Acta", "Röm", "1Kor", "2Kor",
+    "Eph", "Gal", "1Tim", "2Tim", "Hebr", "1Petr", "Jud", "Jak"]
+
 def passage_str_list(passage):
     """
     Convert a string passage into a list
@@ -134,10 +137,10 @@ def extract_nt_objects(book):
 
     for li in lis:
         items = str(li).split("<li>")
-      
+
         for line in items:
             line = line.replace("Kön ", "Kön_")
-            if "(Neues Testament)" in line: # unused
+            if "(Neues Testament)" in line:
                 first_comma = line.index(',')
                 first_paren = line.index('(')
                 nt_head_object_nr = line[first_paren+1:first_comma] # e.g. 844
