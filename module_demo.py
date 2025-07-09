@@ -27,6 +27,7 @@ def object_nt_bibref(o):
     ret["q_fullform"] = f'{match[0]} ({match[1]}-{match[2]}, length {match[2]-match[1]+1})'
     ret["q_verseonly"] = ret["q_fullform"].split(' ', 1)[1]
     ret["q_azform"] = qlatin
+    ret["q_greek"] = o["quotation_text"]
 
     # Search for exact position of the intro text in gnt:
     bibref_passage_container = f'{o["intro_book"]} {o["intro_chapter"]}:{o["intro_verse_start"]} {o["intro_chapter"]}:{o["intro_verse_end"]}'
@@ -41,6 +42,7 @@ def object_nt_bibref(o):
     ret["i_fullform"] = f'{match[0]} ({match[1]}-{match[2]}, length {match[2]-match[1]+1})'
     ret["i_verseonly"] = ret["i_fullform"].split(' ', 1)[1]
     ret["i_azform"] = qlatin
+    ret["i_greek"] = o["intro_text"]
     return ret
 
 def object_ot_bibref(o):
@@ -64,6 +66,7 @@ def object_ot_bibref(o):
     ret["q_fullform"] = f'{match[0]} ({match[1]}-{match[2]}, length {match[2]-match[1]+1})'
     ret["q_verseonly"] = ret["q_fullform"].split(' ', 1)[1]
     ret["q_azform"] = qlatin
+    ret["q_greek"] = o["quoted_text"]
     return ret
 
 
@@ -101,8 +104,11 @@ def object_nt_brst(nt_obj):
         ret += f'   matches LXX {br_obj_ot["q_fullform"]} a-z form {br_obj_ot["q_azform"]}\n'
         if br_obj_ot["unique"]:
             ret += '    unique in Old Testament\n'
-        # FIXME, this is not yet computed:
-        ret += '    verbatim\n'
+        distance = jaccard(br_obj_nt["q_greek"], br_obj_ot["q_greek"])
+        if distance == 0:
+            ret += '    verbatim\n'
+        else:
+            ret += f"    differing by {distance:4.2f}%\n"
         ret += '  providing an overall cover of 100.00%.\n'
         return ret
     return None
