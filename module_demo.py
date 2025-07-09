@@ -20,10 +20,13 @@ def object_nt_bibref(o):
     f_container = find_n(1, gnt)[0] # TODO: This may be a longer list, fix this issue.
     qlatin = text_n(2, o["quotation_text"])
     q = find_n(2, gnt)
+    match = None
     for m in q:
         if f_container[1] <= m[1] and m[2] <= f_container[2]:
             match = m
             break
+    if match == None:
+        raise Exception(f'Cannot identify {o["quotation_text"]} ~ {o["book"]} {o["chapter"]}:{o["verse_start"]} {o["chapter"]}:{o["verse_end"]}')
     ret["q_fullform"] = f'{match[0]} ({match[1]}-{match[2]}, length {match[2]-match[1]+1})'
     ret["q_verseonly"] = ret["q_fullform"].split(' ', 1)[1]
     ret["q_azform"] = qlatin
@@ -35,10 +38,13 @@ def object_nt_bibref(o):
     f_container = find_n(1, gnt)[0] # TODO: This may be a longer list, fix this issue.
     qlatin = text_n(2, o["intro_text"])
     q = find_n(2, gnt)
+    match = None
     for m in q:
         if f_container[1] <= m[1] and m[2] <= f_container[2]:
             match = m
             break
+    if match == None:
+        raise Exception(f'Cannot identify {o["intro_text"]} ~ {o["intro_book"]} {o["intro_chapter"]}:{o["intro_verse_start"]} {o["intro_chapter"]}:{o["intro_verse_end"]}')
     ret["i_fullform"] = f'{match[0]} ({match[1]}-{match[2]}, length {match[2]-match[1]+1})'
     ret["i_verseonly"] = ret["i_fullform"].split(' ', 1)[1]
     ret["i_azform"] = qlatin
@@ -59,10 +65,13 @@ def object_ot_bibref(o):
     qlatin = text_n(2, o["quoted_text"])
     q = find_n(2, "LXX")
     ret["unique"] = (len(q) == 1)
+    match = None
     for m in q:
         if f_container[1] <= m[1] and m[2] <= f_container[2]:
             match = m
             break
+    if match == None:
+        raise Exception(f'Cannot identify "{o["quoted_text"]}" ~ {o["book"]} {o["chapter"]}:{o["verse_start"]}')
     ret["q_fullform"] = f'{match[0]} ({match[1]}-{match[2]}, length {match[2]-match[1]+1})'
     ret["q_verseonly"] = ret["q_fullform"].split(' ', 1)[1]
     ret["q_azform"] = qlatin
@@ -113,20 +122,27 @@ def object_nt_brst(nt_obj):
         return ret
     return None
 
-max_processing = 10
+max_processing = 500
 count = 0
 for ntb in nt_books_isbtf:
     nt_objects = extract_nt_objects(ntb)
     print(f"{ntb} contains {len(nt_objects)} entries.")
     for nt_obj in nt_objects:
-        processed = object_nt_brst(nt_obj)
-        if processed != None:
-            print(processed)
-            count += 1
+        try:
+            processed = object_nt_brst(nt_obj)
+            if processed != None and len(processed) > 2: # FIXME
+                filename = (processed.split(" "))[1] + ".brst"
+                # print(filename, processed)
+                with open(filename, "w") as f:
+                    f.write(processed)
+                count += 1
+        except Exception as inst:
+            print(inst)
         if count >= max_processing:
             break
     if count >= max_processing:
         break
+print(f"{count} entries processed")
 
 # o = get_object("3797")
 # print(o)
