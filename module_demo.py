@@ -24,7 +24,7 @@ def object_nt_bibref(o):
         if f_container[1] <= m[1] and m[2] <= f_container[2]:
             match = m
             break
-    ret["q_fullform"] = f'{match[0]} ({match[1]}-{match[2]})'
+    ret["q_fullform"] = f'{match[0]} ({match[1]}-{match[2]}, length {match[2]-match[1]+1})'
     ret["q_verseonly"] = ret["q_fullform"].split(' ', 1)[1]
     ret["q_azform"] = qlatin
 
@@ -38,7 +38,7 @@ def object_nt_bibref(o):
         if f_container[1] <= m[1] and m[2] <= f_container[2]:
             match = m
             break
-    ret["i_fullform"] = f'{match[0]} ({match[1]}-{match[2]})'
+    ret["i_fullform"] = f'{match[0]} ({match[1]}-{match[2]}, length {match[2]-match[1]+1})'
     ret["i_verseonly"] = ret["i_fullform"].split(' ', 1)[1]
     ret["i_azform"] = qlatin
     return ret
@@ -56,11 +56,12 @@ def object_ot_bibref(o):
     f_container = find_n(1, "LXX")[0] # TODO: This may be a longer list, fix this issue.
     qlatin = text_n(2, o["quoted_text"])
     q = find_n(2, "LXX")
+    ret["unique"] = (len(q) == 1)
     for m in q:
         if f_container[1] <= m[1] and m[2] <= f_container[2]:
             match = m
             break
-    ret["q_fullform"] = f'{match[0]} ({match[1]}-{match[2]})'
+    ret["q_fullform"] = f'{match[0]} ({match[1]}-{match[2]}, length {match[2]-match[1]+1})'
     ret["q_verseonly"] = ret["q_fullform"].split(' ', 1)[1]
     ret["q_azform"] = qlatin
     return ret
@@ -86,22 +87,53 @@ def object_ot_bibref(o):
 
 # print(extract_nt_objects("Acta"))
 
+def object_nt_brst(nt_obj):
+    ret = ""
+    ret += "Statement " + nt_obj[0].replace(" ", "-", 1).replace(" ", "") + " connects\n"
+    if len(nt_obj) == 2: # simple case: one-to-one correspondence
+        print(nt_obj[1][0])
+        br_obj_nt = object_nt_bibref(get_object(nt_obj[1][0][0]))
+        ret += f' {gnt} {br_obj_nt["q_fullform"]} with\n'
+        br_obj_ot = object_ot_bibref(get_object(nt_obj[1][0][1]))
+        ret += f' LXX {br_obj_ot["q_fullform"]} based on\n'
+        ret += f'  introduction {br_obj_nt["i_verseonly"]} a-z form {br_obj_nt["i_azform"]} moreover\n'
+        ret += f'  fragment {br_obj_nt["q_verseonly"]} a-z form {br_obj_nt["q_azform"]}\n'
+        ret += f'   matches LXX {br_obj_ot["q_fullform"]} a-z form {br_obj_ot["q_azform"]}\n'
+        if br_obj_ot["unique"]:
+            ret += '    unique in Old Testament\n'
+        # FIXME, this is not yet computed:
+        ret += '    verbatim\n'
+        ret += '  providing an overall cover of 100.00%.\n'
+        return ret
+    return None
+
+max_processing = 10
+count = 0
 for ntb in nt_books_isbtf:
     nt_objects = extract_nt_objects(ntb)
-    print(ntb, len(nt_objects))
+    print(f"{ntb} contains {len(nt_objects)} entries.")
+    for nt_obj in nt_objects:
+        processed = object_nt_brst(nt_obj)
+        if processed != None:
+            print(processed)
+            count += 1
+        if count >= max_processing:
+            break
+    if count >= max_processing:
+        break
 
-o = get_object("3797")
-print(o)
-print(object_nt_bibref(o))
-
-o = get_object("329")
-print(o)
-print(object_ot_bibref(o))
-
-o = get_object("4987")
-print(o)
-print(object_nt_bibref(o))
-
-o = get_object("333")
-print(o)
-print(object_ot_bibref(o))
+# o = get_object("3797")
+# print(o)
+# print(object_nt_bibref(o))
+# 
+# o = get_object("329")
+# print(o)
+# print(object_ot_bibref(o))
+# 
+# o = get_object("4987")
+# print(o)
+# print(object_nt_bibref(o))
+# 
+# o = get_object("333")
+# print(o)
+# print(object_ot_bibref(o))

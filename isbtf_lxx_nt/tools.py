@@ -77,7 +77,7 @@ def get_object(nr):
     ret = dict()
     marked_quotation = False
     waitfor = ""
-    object_html = open(html_re_folder + "/" + nr + ".html", "r")
+    object_html = open(html_re_folder + "/" + str(nr) + ".html", "r")
     soup = BeautifulSoup(object_html, "lxml")
     tds = soup.find_all("td")
 
@@ -150,7 +150,7 @@ def extract_nt_objects(book):
             if "(NT-Zitat-Adresse)" in line:
                 first_comma = line.index(',')
                 first_paren = line.index('(')
-                nt_obj = line[first_paren+1:first_comma] # e.g. 3918 (this can be repeated for another fragment)
+                nt_obj = int(line[first_paren+1:first_comma]) # e.g. 3918 (this can be repeated for another fragment)
             if "(LXX-Zitat-Adresse)" in line:
                 first_paren_end = line.index(')')
                 first_lxx_zitat = line.index(" (LXX-Zitat-Adresse)")
@@ -162,7 +162,7 @@ def extract_nt_objects(book):
                     if entry in line and not (entry + "]") in line:
                         first_paren = line.index('(')
                         first_comma = line.index(',')
-                        ot_obj = line[first_paren+1:first_comma]
+                        ot_obj = int(line[first_paren+1:first_comma])
                         nt_ot_objects.append([nt_obj[0], ot_obj])
         if identifier != None and len(nt_ot_objects)>0 and len(nt_objects) == len(nt_ot_objects):
             ret.append([identifier, nt_ot_objects])
