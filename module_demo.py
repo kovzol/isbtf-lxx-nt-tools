@@ -43,17 +43,36 @@ def object_nt_bibref(o):
     ret["i_azform"] = qlatin
     return ret
 
-print(passage_str_list("Lk 1 2"))
-o = get_object("3918")
-print(f'{o["quotation_text"]}: {o["book"]} {o["chapter"]}:{o["verse_start"]}-{o["verse_end"]}')
-print(f'{o["intro_text"]}: {o["intro_book"]} {o["intro_chapter"]}:{o["intro_verse_start"]}-{o["intro_verse_end"]}')
+# print(passage_str_list("Lk 1 2"))
+# o = get_object("3918")
+# print(object_nt_bibref(o))
+
+# print(f'{o["quotation_text"]}: {o["book"]} {o["chapter"]}:{o["verse_start"]}-{o["verse_end"]}')
+# print(f'{o["intro_text"]}: {o["intro_book"]} {o["intro_chapter"]}:{o["intro_verse_start"]}-{o["intro_verse_end"]}')
 
 # print(getrefs_maxlength("SBLGNT LXX Psalms 2"))
-print(text_n(1, o["quotation_text"]))
-print(find_n(1, "LXX"))
+# print(text_n(1, o["quotation_text"]))
+# print(find_n(1, "LXX"))
 # print(find_n(1, "SBLGNT"))
 
-print(text_n(2, o["intro_text"]))
-print(find_n(2, "SBLGNT"))
+# print(text_n(2, o["intro_text"]))
+# print(find_n(2, "SBLGNT"))
 
+# o = get_object("845")
+# print(o)
+
+# extract_nt_objects("Acta")
+
+o = get_object("3797")
+print(o)
 print(object_nt_bibref(o))
+
+o = get_object("329")
+print(o)
+
+o = get_object("4987")
+print(o)
+print(object_nt_bibref(o))
+
+o = get_object("333")
+print(o)

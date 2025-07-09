@@ -42,6 +42,7 @@ books_isbtf_sword = {
     'Ez': "Ezekiel",
     'Eph': "Ephesians",
     'Acta': "Acts",
+    'Apg': "Acts",
     '2Esdr': "II_Esdras", # ?
     'Am': "Amos",
     'Gal': "Galatians",
@@ -87,7 +88,12 @@ def get_object(nr):
         "NTZ: Einleitung Kapitel": "intro_chapter",
         "NTZ: Einleitung Beginn Vers": "intro_verse_start",
         "NTZ: EInleitung Ende Vers": "intro_verse_end",
-        "NTZ: Einleitungstext ohne Akzente": "intro_text"
+        "NTZ: Einleitungstext ohne Akzente": "intro_text",
+
+        "LXX Buch": "book",
+        "LXX Kapitel": "chapter",
+        "LXX Beginn Vers": "verse_start",
+        "LXX Basistext (ohne Akzente)": "quoted_text"
     }
 
     for td in tds:
@@ -98,6 +104,11 @@ def get_object(nr):
                 ret[keys[k]] = item
                 waitfor = ""
                 waitfor_used = True
+                if not "testament" in keys:
+                    if k.startswith("NTZ:"):
+                        ret["testament"] = "n"
+                    if k.startswith("LXX "):
+                        ret["testament"] = "o"
         if waitfor_used:
             continue
         if item == "markiertes Zitat":
@@ -107,6 +118,46 @@ def get_object(nr):
                 waitfor = keys[k]
     ret["marked_quotation"] = marked_quotation
     ret["book"] = books_isbtf_sword[ret["book"]]
-    ret["intro_book"] = books_isbtf_sword[ret["intro_book"]]
+    if "intro_book" in ret.keys():
+        ret["intro_book"] = books_isbtf_sword[ret["intro_book"]]
     object_html.close()
     return ret
+
+def extract_nt_objects(book):
+    source = open(html_re_folder + "/" + book + ".html", "r")
+    soup = BeautifulSoup(source, "lxml")
+    lis = soup.find_all('li')
+    for li in lis:
+        items = str(li).split("\n")
+        # First line: "<li><a href="javascript:refresh_main(328, 0)">Acta 1, 20 (Neues Testament)</a> <ul><li><a href="javascript:refresh_main(3797, 328)">Acta 1, 20 (NT-Zitat-Adresse)</a></li>""
+        two_first_lines = items[0].split("<li>")
+        items.insert(1, two_first_lines[2])
+        items[0] = two_first_lines[1] # split the first line which contains a duplicate <li>
+        
+        nt_objects = []
+        nt_ot_objects = []
+        for line in items:
+            line = line.replace("Kön ", "Kön_")
+            if "(Neues Testament)" in line: # unused
+                first_comma = line.index(',')
+                first_paren = line.index('(')
+                nt_head_object_nr = line[first_paren+1:first_comma] # e.g. 844
+            if "(NT-Zitat-Adresse)" in line:
+                first_comma = line.index(',')
+                first_paren = line.index('(')
+                nt_obj = line[first_paren+1:first_comma] # e.g. 3918 (this can be repeated for another fragment)
+            if "(LXX-Zitat-Adresse)" in line:
+                first_paren_end = line.index(')')
+                first_lxx_zitat = line.index(" (LXX-Zitat-Adresse")
+                ot_passage = line[first_paren_end+3:first_lxx_zitat] # e.g. Ps 2, 7
+                nt_objects.append([nt_obj, ot_passage]) # register this fragment pair for processing them below
+            if "(LXX)" in line:
+                for nt_obj in nt_objects:
+                    entry = nt_obj[1] + " (LXX)"
+                    if entry in line and not (entry + "]") in line:
+                        first_paren = line.index('(')
+                        first_comma = line.index(',')
+                        ot_obj = line[first_paren+1:first_comma]
+                        nt_ot_objects.append([nt_obj[0], ot_obj])
+        print(nt_ot_objects)
+    source.close()
