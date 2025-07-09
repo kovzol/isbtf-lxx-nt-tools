@@ -26,7 +26,7 @@ def object_nt_bibref(o):
             match = m
             break
     if match == None:
-        raise Exception(f'Cannot identify {o["quotation_text"]} ~ {o["book"]} {o["chapter"]}:{o["verse_start"]} {o["chapter"]}:{o["verse_end"]}')
+        raise Exception(f'Cannot identify "{o["quotation_text"]}" ~ {o["book"]} {o["chapter"]}:{o["verse_start"]} {o["chapter"]}:{o["verse_end"]}')
     ret["q_fullform"] = f'{match[0]} ({match[1]}-{match[2]}, length {match[2]-match[1]+1})'
     ret["q_verseonly"] = ret["q_fullform"].split(' ', 1)[1]
     ret["q_azform"] = qlatin
@@ -44,7 +44,7 @@ def object_nt_bibref(o):
             match = m
             break
     if match == None:
-        raise Exception(f'Cannot identify {o["intro_text"]} ~ {o["intro_book"]} {o["intro_chapter"]}:{o["intro_verse_start"]} {o["intro_chapter"]}:{o["intro_verse_end"]}')
+        raise Exception(f'Cannot identify "{o["intro_text"]}" ~ {o["intro_book"]} {o["intro_chapter"]}:{o["intro_verse_start"]} {o["intro_chapter"]}:{o["intro_verse_end"]}')
     ret["i_fullform"] = f'{match[0]} ({match[1]}-{match[2]}, length {match[2]-match[1]+1})'
     ret["i_verseonly"] = ret["i_fullform"].split(' ', 1)[1]
     ret["i_azform"] = qlatin
@@ -101,7 +101,9 @@ def object_ot_bibref(o):
 
 def object_nt_brst(nt_obj):
     ret = ""
-    ret += "Statement " + nt_obj[0].replace(" ", "-", 1).replace(" ", "") + " connects\n"
+    identifier = passage_str_list(nt_obj[0])
+    identifier = f"{identifier[0]}-{identifier[1]},{identifier[2]}"
+    ret += f"Statement {identifier} connects\n"
     if len(nt_obj) == 2: # simple case: one-to-one correspondence
         print(nt_obj[1][0])
         br_obj_nt = object_nt_bibref(get_object(nt_obj[1][0][0]))

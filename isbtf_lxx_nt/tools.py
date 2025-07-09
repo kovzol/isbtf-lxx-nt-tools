@@ -61,7 +61,7 @@ nt_books_isbtf = ["Mt", "Mk", "Lk", "Joh", "Acta", "Röm", "1Kor", "2Kor",
 def passage_str_list(passage):
     """
     Convert a string passage into a list
-    :param passage: passage as string
+    :param passage: passage as string (e.g. "Röm 2, 7")
     :return: passage as list of book, chapter, verse
     """
     passage_arr = passage.split(" ")
