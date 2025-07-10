@@ -1,0 +1,7 @@
+9,40: error: NT introduction interval 2 overlaps fragment interval 3 E12
+(proof error in Acts-7,7)
+9,40: error: NT introduction interval 2 overlaps fragment interval 3 E12
+(proof error in Hebrews-8,5)
+9,40: error: NT introduction interval 2 overlaps fragment interval 3 E12
+(proof error in I_Corinthians-6,16)
+Total: 254 cases, 251 correct, 3 erroneous
