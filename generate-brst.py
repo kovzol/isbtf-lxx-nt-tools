@@ -26,12 +26,21 @@ def object_nt_bibref(o):
     # Search for exact position of the quotation text in gnt:
     bibref_passage_container = f'{o["book"]} {o["chapter"]}:{o["verse_start"]} {o["chapter"]}:{o["verse_end"]}'
     l_container = lookup_n(1, gnt + " " + bibref_passage_container)
-    f_container = find_n(1, gnt)[0] # TODO: This may be a longer list, fix this issue.
+    f_containers = find_n(1, gnt)
+    match = None
+    for container in f_containers:
+        c_book = (container[0].split(" "))[0]
+        if o["book"] == c_book:
+            match = container # we assume that there is only one match per book, TODO: maybe check chapter also
+            break
+    if match == None:
+        raise Exception(f'Cannot find {bibref_passage_container}')
     qlatin = text_n(2, o["quotation_text"])
     q = find_n(2, gnt)
     match = None
     for m in q:
-        if f_container[1] <= m[1] and m[2] <= f_container[2]:
+        m_book = (m[0].split(" "))[0]
+        if o["book"] == m_book and container[1] <= m[1] and m[2] <= container[2]:
             match = m
             break
     if match == None:
@@ -42,22 +51,27 @@ def object_nt_bibref(o):
     ret["q_greek"] = o["quotation_text"]
 
     # Search for exact position of the intro text in gnt:
-    bibref_passage_container = f'{o["intro_book"]} {o["intro_chapter"]}:{o["intro_verse_start"]} {o["intro_chapter"]}:{o["intro_verse_end"]}'
-    l_container = lookup_n(1, gnt + " " + bibref_passage_container)
-    f_container = find_n(1, gnt)[0] # TODO: This may be a longer list, fix this issue.
-    qlatin = text_n(2, o["intro_text"])
-    q = find_n(2, gnt)
-    match = None
-    for m in q:
-        if f_container[1] <= m[1] and m[2] <= f_container[2]:
-            match = m
-            break
-    if match == None:
-        raise Exception(f'Cannot identify "{o["intro_text"]}" ~ {o["intro_book"]} {o["intro_chapter"]}:{o["intro_verse_start"]} {o["intro_chapter"]}:{o["intro_verse_end"]}')
-    ret["i_fullform"] = f'{match[0]} ({match[1]}-{match[2]}, length {match[2]-match[1]+1})'
-    ret["i_verseonly"] = ret["i_fullform"].split(' ', 1)[1]
-    ret["i_azform"] = qlatin
-    ret["i_greek"] = o["intro_text"]
+    if "intro_book" in o.keys() and "intro_text" in o.keys():
+        bibref_passage_container = f'{o["intro_book"]} {o["intro_chapter"]}:{o["intro_verse_start"]} {o["intro_chapter"]}:{o["intro_verse_end"]}'
+        l_container = lookup_n(1, gnt + " " + bibref_passage_container)
+        f_container = find_n(1, gnt)[0] # TODO: This may be a longer list, fix this issue.
+        qlatin = text_n(2, o["intro_text"])
+        q = find_n(2, gnt)
+        match = None
+        for m in q:
+            if f_container[1] <= m[1] and m[2] <= f_container[2]:
+                match = m
+                break
+        if match == None:
+            raise Exception(f'Cannot identify "{o["intro_text"]}" ~ {o["intro_book"]} {o["intro_chapter"]}:{o["intro_verse_start"]} {o["intro_chapter"]}:{o["intro_verse_end"]}')
+        ret["i_fullform"] = f'{match[0]} ({match[1]}-{match[2]}, length {match[2]-match[1]+1})'
+        ret["i_verseonly"] = ret["i_fullform"].split(' ', 1)[1]
+        ret["i_azform"] = qlatin
+        ret["i_greek"] = o["intro_text"]
+        ret["with_intro"] = True
+    else:
+        ret["with_intro"] = False
+    ret["marked_quotation"] = o["marked_quotation"]
     return ret
 
 def object_ot_bibref(o):
@@ -94,6 +108,10 @@ def object_nt_brst(nt_obj):
     ret += f"Statement {identifier} connects\n"
     if len(nt_obj) == 2: # simple case: one-to-one correspondence
         br_obj_nt = object_nt_bibref(get_object(nt_obj[1][0][0]))
+#        if not br_obj_nt["marked_quotation"] or not br_obj_nt["with_intro"]:
+        if not br_obj_nt["with_intro"]:
+            # non-marked quotations are currently not handled
+            return None
         ret += f' {gnt} {br_obj_nt["q_fullform"]} with\n'
         br_obj_ot = object_ot_bibref(get_object(nt_obj[1][0][1]))
         ret += f' LXX {br_obj_ot["q_fullform"]} based on\n'
@@ -115,6 +133,7 @@ if not os.path.exists(generated_folder):
     os.makedirs(generated_folder)
 count = 0
 for ntb in nt_books_isbtf:
+# for ntb in ["Acta"]: # Use this to restrict run to certain books.
     nt_objects = extract_nt_objects(ntb)
     print(f"{ntb} contains {len(nt_objects)} entries.")
     for nt_obj in nt_objects:
@@ -125,7 +144,11 @@ for ntb in nt_books_isbtf:
                 with open(generated_folder + "/" + filename, "w") as f:
                     f.write(processed)
                 count += 1
+        except KeyError:
+            print(f"There is a fatal error when processing {nt_obj}:")
+            raise
         except Exception as inst:
+            print(f"There is a skippable error when processing {nt_obj}:")
             print(inst)
         if count >= max_processing:
             break

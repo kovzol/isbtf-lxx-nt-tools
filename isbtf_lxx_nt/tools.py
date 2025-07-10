@@ -8,10 +8,10 @@ books_isbtf_sword = {
     'Mt': "Matthew",
     'Jes': "Isaiah",
     '1Chr': "I_Chronicles",
-    'Kön_I': "I_Kings",
-    'Kön_II': "II_Kings",
-    'Kön_III': "III_Kings", # ?
-    'Kön_IV': "IV_Kings", # ?
+    'Kön I': "I_Kings",
+    'Kön II': "II_Kings",
+    'Kön III': "III_Kings", # ?
+    'Kön IV': "IV_Kings", # ?
     'Mi': "Micah",
     'Hos': "Hosea",
     'Jer': "Jeremiah",
@@ -52,7 +52,8 @@ books_isbtf_sword = {
     'Hag': "Haggai",
     '1Petr': "I_Peter",
     'Hebr': "Hebrews",
-    'Lk': "Luke"
+    'Lk': "Luke",
+    'Joel': "Joel"
     }
 
 nt_books_isbtf = ["Mt", "Mk", "Lk", "Joh", "Acta", "Röm", "1Kor", "2Kor",
@@ -64,6 +65,7 @@ def passage_str_list(passage):
     :param passage: passage as string (e.g. "Röm 2, 7")
     :return: passage as list of book, chapter, verse
     """
+    # passage = passage.replace(" I", "_I") # change Kön I to Kön_I
     passage_arr = passage.split(" ")
     if passage_arr[0] in books_isbtf_sword:
         book = books_isbtf_sword[passage_arr[0]]
@@ -104,7 +106,8 @@ def get_object(nr):
         waitfor_used = False
         for k in keys:
             if waitfor == keys[k]:
-                ret[keys[k]] = item
+                if item != "": # empty items should not be stored
+                    ret[keys[k]] = item
                 waitfor = ""
                 waitfor_used = True
                 if not "testament" in keys:
@@ -121,8 +124,11 @@ def get_object(nr):
                 waitfor = keys[k]
     ret["marked_quotation"] = marked_quotation
     ret["book"] = books_isbtf_sword[ret["book"]]
-    if "intro_book" in ret.keys():
-        ret["intro_book"] = books_isbtf_sword[ret["intro_book"]]
+    if "intro_book" in ret.keys() and ret["intro_book"] != "":
+        try:
+            ret["intro_book"] = books_isbtf_sword[ret["intro_book"]]
+        except:
+            print(f'No {ret["intro_book"]} found in books_isbtf_sword') # Warning?
     object_html.close()
     return ret
 
