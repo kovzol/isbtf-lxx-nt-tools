@@ -106,7 +106,7 @@ def object_nt_brst(nt_obj):
     identifier = passage_str_list(nt_obj[0])
     identifier = f"{identifier[0]}-{identifier[1]},{identifier[2]}"
     ret += f"Statement {identifier} connects\n"
-    if len(nt_obj) == 2: # simple case: one-to-one correspondence
+    if len(nt_obj[1]) == 1: # simple case: one-to-one correspondence
         br_obj_nt = object_nt_bibref(get_object(nt_obj[1][0][0]))
 #        if not br_obj_nt["marked_quotation"] or not br_obj_nt["with_intro"]:
         if not br_obj_nt["with_intro"]:
