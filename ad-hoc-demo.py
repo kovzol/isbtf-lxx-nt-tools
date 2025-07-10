@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 
 # This is a basic demo that reads all files from html-re/ and shows the entries in a simple way.
+# It is now obsoleted.
 
 from bs4 import BeautifulSoup
 import os

@@ -1,11 +1,20 @@
 #!/usr/bin/python3
 
-from isbtf_lxx_nt.tools import *
+# This script creates an ad-hoc BRST file database, based on ISBTF's LXX_NT online archive.
+
+# NT Bible texts will be based on the SWORD library, module SBLGNT:
+gnt = "SBLGNT" # Alternatively, you can change this to StatResGNT.
+# The folder to be generated with the BRST output:
+generated_folder = "generated-brst"
+# Stop after processing so many entries:
+max_processing = 500
+# If the bibref utility is installed, set it here explicitly. Otherwise comment this line
+# and the bibref module will try to find a development version (currently under ../..).
 from bibref.tools import *
-
-gnt = "SBLGNT"
-
 set_bibref_path("bibref")
+
+from isbtf_lxx_nt.tools import *
+import os
 
 def object_nt_bibref(o):
     """
@@ -78,34 +87,12 @@ def object_ot_bibref(o):
     ret["q_greek"] = o["quoted_text"]
     return ret
 
-
-# print(passage_str_list("Lk 1 2"))
-# o = get_object("3918")
-# print(object_nt_bibref(o))
-
-# print(f'{o["quotation_text"]}: {o["book"]} {o["chapter"]}:{o["verse_start"]}-{o["verse_end"]}')
-# print(f'{o["intro_text"]}: {o["intro_book"]} {o["intro_chapter"]}:{o["intro_verse_start"]}-{o["intro_verse_end"]}')
-
-# print(getrefs_maxlength("SBLGNT LXX Psalms 2"))
-# print(text_n(1, o["quotation_text"]))
-# print(find_n(1, "LXX"))
-# print(find_n(1, "SBLGNT"))
-
-# print(text_n(2, o["intro_text"]))
-# print(find_n(2, "SBLGNT"))
-
-# o = get_object("845")
-# print(o)
-
-# print(extract_nt_objects("Acta"))
-
 def object_nt_brst(nt_obj):
     ret = ""
     identifier = passage_str_list(nt_obj[0])
     identifier = f"{identifier[0]}-{identifier[1]},{identifier[2]}"
     ret += f"Statement {identifier} connects\n"
     if len(nt_obj) == 2: # simple case: one-to-one correspondence
-        print(nt_obj[1][0])
         br_obj_nt = object_nt_bibref(get_object(nt_obj[1][0][0]))
         ret += f' {gnt} {br_obj_nt["q_fullform"]} with\n'
         br_obj_ot = object_ot_bibref(get_object(nt_obj[1][0][1]))
@@ -124,7 +111,8 @@ def object_nt_brst(nt_obj):
         return ret
     return None
 
-max_processing = 500
+if not os.path.exists(generated_folder):
+    os.makedirs(generated_folder)
 count = 0
 for ntb in nt_books_isbtf:
     nt_objects = extract_nt_objects(ntb)
@@ -134,8 +122,7 @@ for ntb in nt_books_isbtf:
             processed = object_nt_brst(nt_obj)
             if processed != None and len(processed) > 2: # FIXME
                 filename = (processed.split(" "))[1] + ".brst"
-                # print(filename, processed)
-                with open(filename, "w") as f:
+                with open(generated_folder + "/" + filename, "w") as f:
                     f.write(processed)
                 count += 1
         except Exception as inst:
@@ -145,19 +132,3 @@ for ntb in nt_books_isbtf:
     if count >= max_processing:
         break
 print(f"{count} entries processed")
-
-# o = get_object("3797")
-# print(o)
-# print(object_nt_bibref(o))
-# 
-# o = get_object("329")
-# print(o)
-# print(object_ot_bibref(o))
-# 
-# o = get_object("4987")
-# print(o)
-# print(object_nt_bibref(o))
-# 
-# o = get_object("333")
-# print(o)
-# print(object_ot_bibref(o))
