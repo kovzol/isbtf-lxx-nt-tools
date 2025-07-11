@@ -100,6 +100,23 @@ def object_ot_bibref(o, quotation_greek = ""):
             print(f"Substring found: {quotation_azform} in {qlatin}")
             qlatin = quotation_azform
             text_n(2, quotation_greek) # continuing with this
+        else:
+            # 2. General case:
+            best, best_c = 100.0, qlatin
+            l = len(qlatin)
+            latintext_n(2, quotation_azform)
+            for i in range(l):
+                for j in range(i+1, l):
+                    c = qlatin[i:j]
+                    latintext_n(1, c)
+                    distance = jaccard12()
+                    if distance < best:
+                        best_i, best_j, best_c, best = i, j, c, distance
+                print(i, best)
+            qlatin = best_c
+            print(f"Best string found: {quotation_azform} ~ {qlatin}")
+            o["quoted_text"] = latin_to_greek(qlatin)
+            text_n(2, o["quoted_text"])
 
     q = find_n(2, "LXX")
     ret["unique"] = (len(q) == 1)
