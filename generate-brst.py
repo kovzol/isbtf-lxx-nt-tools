@@ -74,18 +74,33 @@ def object_nt_bibref(o):
     ret["marked_quotation"] = o["marked_quotation"]
     return ret
 
-def object_ot_bibref(o):
+def object_ot_bibref(o, quotation_greek = ""):
     """
     Extract data from OT object in bibref format.
+    If quotation is given (provided from the NT entry), a refining of the output passage is expected.
     :param o: input object
     :return: various parts of the object as dict
     """
     ret = dict()
-    # Search for exact position of the quotation text in gnt:
+    # Search for exact position of the quotation text in LXX:
     bibref_passage_container = f'{o["book"]} {o["chapter"]}:{o["verse_start"]}'
     l_container = lookup_n(1, "LXX" + " " + bibref_passage_container)
     f_container = find_n(1, "LXX")[0] # TODO: This may be a longer list, fix this issue.
     qlatin = text_n(2, o["quoted_text"])
+
+    if quotation_greek != "": # try to improve the output
+        # We assume that the NT quotation is exactly identified by the ISBTF project, so we only have to
+        # find the best matching OT text inside o["quoted_text"] (qlatin).
+        # This requires only O(N^2) jaccard-comparisons where N is the length of qlatin.
+        # 1. Special case: if quotation is a substring of quoted text.
+        quotation_azform = text_n(1, quotation_greek)
+        p = qlatin.find(quotation_azform)
+        if p != -1:
+            o["quoted_text"] = quotation_greek
+            print(f"Substring found: {quotation_azform} in {qlatin}")
+            qlatin = quotation_azform
+            text_n(2, quotation_greek) # continuing with this
+
     q = find_n(2, "LXX")
     ret["unique"] = (len(q) == 1)
     match = None
@@ -113,7 +128,7 @@ def object_nt_brst(nt_obj):
             # non-marked quotations are currently not handled
             return None
         ret += f' {gnt} {br_obj_nt["q_fullform"]} with\n'
-        br_obj_ot = object_ot_bibref(get_object(nt_obj[1][0][1]))
+        br_obj_ot = object_ot_bibref(get_object(nt_obj[1][0][1]), br_obj_nt["q_greek"])
         ret += f' LXX {br_obj_ot["q_fullform"]} based on\n'
         ret += f'  introduction {br_obj_nt["i_verseonly"]} a-z form {br_obj_nt["i_azform"]} moreover\n'
         ret += f'  fragment {br_obj_nt["q_verseonly"]} a-z form {br_obj_nt["q_azform"]}\n'
