@@ -112,9 +112,10 @@ def object_ot_bibref(o, quotation_greek = ""):
                     distance = jaccard12()
                     if distance < best:
                         best_i, best_j, best_c, best = i, j, c, distance
-                print(i, best)
+                percent = i*100 // l
+                print(f"Best substring? {quotation_azform} ~ {best_c}: {int(best)}% ({percent}% done)\u001b[{0}K\r", end='')
             qlatin = best_c
-            print(f"Best string found: {quotation_azform} ~ {qlatin}")
+            print(f"Best string found: {quotation_azform} ~ {qlatin}: {int(best)}%\u001b[{0}K")
             o["quoted_text"] = latin_to_greek(qlatin)
             text_n(2, o["quoted_text"])
 
