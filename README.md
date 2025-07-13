@@ -6,6 +6,10 @@ project and saving them as bibref statements. The project is a work in progress.
 To run `generate-brst.py`, you need to have the bibref Python module also.
 You can find it in https://github.com/kovzol/bibref, folder `py`.
 
+Both Python files require the BeautifulSoup4 Python library. For example,
+on Ubuntu Linux systems, you need to have the package python-bs4 to have
+it provided.
+
 ## Author
 
 This project is maintained by Zoltán Kovács <zoltan@geogebra.org>.
