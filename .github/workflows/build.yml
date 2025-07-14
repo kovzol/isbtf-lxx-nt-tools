@@ -16,6 +16,7 @@ jobs:
         mkdir bibref-git
         cd bibref-git
         git clone https://github.com/kovzol/bibref
+        cd ..
         ln -s bibref-git/py/bibref
     - name: generate-brst
       run: |
