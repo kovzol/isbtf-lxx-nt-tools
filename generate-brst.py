@@ -41,7 +41,7 @@ def object_nt_bibref(o):
     match = None
     for m in q:
         m_book = (m[0].split(" "))[0]
-        if o["book"] == m_book and container[1] <= m[1] and m[2] <= container[2]:
+        if o["book"] == m_book and ((container[1] <= m[1] and m[1] <= container[2]) or (container[1] <= m[2] and m[2] <= container[2])):
             match = m
             break
     if match == None:
@@ -53,11 +53,13 @@ def object_nt_bibref(o):
         q = find_n(2, gnt)
         for m in q:
             m_book = (m[0].split(" "))[0]
-            if o["book"] == m_book and container[1] <= m[1] and m[2] <= container[2]:
+            if o["book"] == m_book and ((container[1] <= m[1] and m[1] <= container[2]) or (container[1] <= m[2] and m[2] <= container[2])):
                 match = m
+                qlatin = qlatin_fuzzy
+                o["quotation_text"] = latin_to_greek(qlatin)
             break
         if match == None:
-            raise Exception(f'Cannot identify "{o["quotation_text"]}" ~ {o["book"]} {o["chapter"]}:{o["verse_start"]} {o["chapter"]}:{o["verse_end"]}')
+            raise Exception(f'Quotation: Cannot identify "{o["quotation_text"]}" ~ {o["book"]} {o["chapter"]}:{o["verse_start"]} {o["chapter"]}:{o["verse_end"]}')
     ret["q_fullform"] = f'{match[0]} ({match[1]}-{match[2]}, length {match[2]-match[1]+1})'
     ret["q_verseonly"] = ret["q_fullform"].split(' ', 1)[1]
     ret["q_azform"] = qlatin
@@ -72,11 +74,12 @@ def object_nt_bibref(o):
         q = find_n(2, gnt)
         match = None
         for m in q:
-            if f_container[1] <= m[1] and m[2] <= f_container[2]:
+            m_book = (m[0].split(" "))[0]
+            if o["intro_book"] == m_book and ((f_container[1] <= m[1] and m[1] <= f_container[2]) or (f_container[1] <= m[2] and m[2] <= f_container[2])):
                 match = m
                 break
         if match == None:
-            raise Exception(f'Cannot identify "{o["intro_text"]}" ~ {o["intro_book"]} {o["intro_chapter"]}:{o["intro_verse_start"]} {o["intro_chapter"]}:{o["intro_verse_end"]}')
+            raise Exception(f'Intro: Cannot identify "{o["intro_text"]}" ~ {o["intro_book"]} {o["intro_chapter"]}:{o["intro_verse_start"]} {o["intro_chapter"]}:{o["intro_verse_end"]}')
         ret["i_fullform"] = f'{match[0]} ({match[1]}-{match[2]}, length {match[2]-match[1]+1})'
         ret["i_verseonly"] = ret["i_fullform"].split(' ', 1)[1]
         ret["i_azform"] = qlatin
@@ -129,11 +132,12 @@ def object_ot_bibref(o, quotation_greek = ""):
     ret["unique"] = (len(q) == 1)
     match = None
     for m in q:
-        if f_container[1] <= m[1] and m[2] <= f_container[2]:
+        m_book = (m[0].split(" "))[0]
+        if o["book"] == m_book and ((f_container[1] <= m[1] and m[1] <= f_container[2]) or (f_container[1] <= m[2] and m[2] <= f_container[2])):
             match = m
             break
     if match == None:
-        raise Exception(f'Cannot identify "{o["quoted_text"]}" ~ {o["book"]} {o["chapter"]}:{o["verse_start"]}')
+        raise Exception(f'Quoted text: Cannot identify "{o["quoted_text"]}" ~ {o["book"]} {o["chapter"]}:{o["verse_start"]}')
     ret["q_fullform"] = f'{match[0]} ({match[1]}-{match[2]}, length {match[2]-match[1]+1})'
     ret["q_verseonly"] = ret["q_fullform"].split(' ', 1)[1]
     ret["q_azform"] = qlatin
@@ -181,7 +185,7 @@ count = 0
 substring_type = 0
 substring_fuzzy_type = 0
 
-maxresults(1000)
+maxresults(100000)
 
 for ntb in nt_books_isbtf:
 # for ntb in ["Acta"]: # Use this to restrict run to certain books.
