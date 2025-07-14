@@ -24,7 +24,7 @@ jobs:
     - name: bibref-check
       run: |
          sudo apt install flex bison libsword-dev libsword-common
-         cd bibref-git
+         cd bibref-git/bibref
          mkdir build
          cd build
          cmake ..
@@ -34,4 +34,4 @@ jobs:
          cd statements
          make
          cd tests
-         ./runme ../../../generated-brst
+         ./runme ../../../../generated-brst
