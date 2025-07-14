@@ -21,3 +21,17 @@ jobs:
     - name: generate-brst
       run: |
         ./generate-brst.py
+    - name: bibref-check
+      run: |
+         sudo apt install flex bison libsword-dev libsword-common
+         cd bibref-git
+         mkdir build
+         cd build
+         cmake ..
+         make
+         make install || true
+         cd ..
+         cd statements
+         make
+         cd tests
+         ./runme ../../../generated-brst
