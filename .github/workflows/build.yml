@@ -35,3 +35,8 @@ jobs:
          make
          cd tests
          ./runme ../../../../generated-brst
+    - name: bibref-graphviz
+      run: |
+         sudo apt install highlight graphviz
+         cd bibref-git/bibref/statements/tests
+         ./runme-graphviz ../../../../generated-brst
