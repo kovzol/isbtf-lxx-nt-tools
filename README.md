@@ -8,7 +8,15 @@ You can find it in https://github.com/kovzol/bibref, folder `py`.
 
 Both Python files require the BeautifulSoup4 Python library. For example,
 on Ubuntu Linux systems, you need to have the package `python3-bs4` to have
-it provided.
+it provided. See the corresponding GitHub Action for details.
+
+## Status
+
+* 358 entries of the database can be identified.
+* 203 of these entries (non-mosaic ones) can be converted into a bibref statement,
+  - 15 of them already contained the perfect verbatim OT fragment match,
+  - 57 of them were improved on the OT part by using a substring of the given OT verse,
+  - 131 of them were improved on the OT part by using a fuzzy substring of the given OT verse.
 
 ## Author
 
