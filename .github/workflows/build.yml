@@ -23,7 +23,7 @@ jobs:
         ./generate-brst.py
     - name: bibref-check
       run: |
-         sudo apt install flex bison libsword-dev libsword-common libreadline-dev libboost-dev
+         sudo apt install flex bison libsword-dev libsword-common libreadline-dev libboost-dev libboost-filesystem-dev
          cd bibref-git/bibref
          mkdir build
          cd build
