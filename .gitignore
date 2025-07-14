@@ -1,2 +1,6 @@
 bibref
 bibref-addbooks-cache
+generated-brst/*.brst.dot
+generated-brst/*.bsrt.html
+generated-brst/*.bsrt.svg
+isbtf-lxx-nt/__pycache__

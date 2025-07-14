@@ -180,6 +180,9 @@ allcases = 0
 count = 0
 substring_type = 0
 substring_fuzzy_type = 0
+
+maxresults(1000)
+
 for ntb in nt_books_isbtf:
 # for ntb in ["Acta"]: # Use this to restrict run to certain books.
     nt_objects = extract_nt_objects(ntb)
