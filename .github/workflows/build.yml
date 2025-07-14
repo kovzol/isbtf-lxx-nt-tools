@@ -1,0 +1,22 @@
+name: build
+
+on: [push]
+
+jobs:
+  build-linux:
+    runs-on: ubuntu-24.04
+    steps:
+    - uses: actions/checkout@v1
+    - name: prerequisites
+      run: |
+         sudo snap install bibref
+         sudo apt install python3 python3-pexpect python3-bs4
+    - name: bibref-py
+      run: |
+        mkdir bibref-git
+        cd bibref-git
+        git clone https://github.com/kovzol/bibref
+        ln -s bibref-git/py/bibref
+    - name: generate-brst
+      run: |
+        ./generate-brst.py
