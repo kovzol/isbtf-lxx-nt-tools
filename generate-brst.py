@@ -23,7 +23,7 @@ def object_nt_bibref(o):
     :return: various parts of the object as dict
     """
     ret = dict()
-    o["quotation_text"] = o['quotation_text'].replace("\n", " ")
+    o["quotation_text"] = ' '.join(o['quotation_text'].split()) # simplify whitespaces by single space
     # Search for exact position of the quotation text in gnt:
     bibref_passage_container = f'{o["book"]} {o["chapter"]}:{o["verse_start"]} {o["chapter"]}:{o["verse_end"]}'
     l_container = lookup_n(1, gnt + " " + bibref_passage_container)

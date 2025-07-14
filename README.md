@@ -13,10 +13,11 @@ it provided. See the corresponding GitHub Action for details.
 ## Status
 
 * 358 entries of the database can be identified.
-* 220 of these entries (non-mosaic ones) can be converted into a bibref statement,
-  - 15 of them already contained the perfect verbatim OT fragment match,
-  - 50 of them were improved on the OT part by using a substring of the given OT verse,
-  - 155 of them were improved on the OT part by using a fuzzy substring of the given OT verse.
+* 221 of these entries (non-mosaic ones) can be converted into a bibref statement,
+  - 67 of them already contained the perfect verbatim OT fragment match
+    or were improved on the OT part by using a substring of the given OT verse,
+  - 154 of them were improved on the OT part by using a fuzzy substring of the given OT verse,
+* 8 of the 221 have overlapping parts (the other 213 are correct).
 
 ## Author
 

@@ -1,13 +1,9 @@
 9,40: error: NT introduction interval 2 overlaps fragment interval 3 E12
-(proof error in Acts-2,34)
-9,40: error: NT introduction interval 2 overlaps fragment interval 3 E12
 (proof error in Acts-7,7)
 9,40: error: NT introduction interval 2 overlaps fragment interval 3 E12
 (proof error in Hebrews-13,6)
 9,40: error: NT introduction interval 2 overlaps fragment interval 3 E12
 (proof error in Hebrews-8,5)
-9,40: error: NT introduction interval 2 overlaps fragment interval 3 E12
-(proof error in I_Corinthians-2,9)
 9,40: error: NT introduction interval 2 overlaps fragment interval 3 E12
 (proof error in I_Corinthians-6,16)
 9,40: error: NT introduction interval 2 overlaps fragment interval 3 E12
@@ -15,9 +11,7 @@
 9,40: error: NT introduction interval 2 overlaps fragment interval 3 E12
 (proof error in Luke-19,38)
 9,40: error: NT introduction interval 2 overlaps fragment interval 3 E12
-(proof error in Luke-20,17)
-9,40: error: NT introduction interval 2 overlaps fragment interval 3 E12
 (proof error in Matthew-13,35)
 9,40: error: NT introduction interval 2 overlaps fragment interval 3 E12
 (proof error in Romans-15,9)
-Total: 220 cases, 209 correct, 11 erroneous
+Total: 221 cases, 213 correct, 8 erroneous
