@@ -92,6 +92,7 @@ def object_ot_bibref(o, quotation_greek = ""):
         # We assume that the NT quotation is exactly identified by the ISBTF project, so we only have to
         # find the best matching OT text inside o["quoted_text"] (qlatin).
         # This requires only O(N^2) jaccard-comparisons where N is the length of qlatin.
+        # Unfortunately, this is still too much, but a dynamic variant of the concept works well.
         # 1. Special case: if quotation is a substring of quoted text.
         quotation_azform = text_n(1, quotation_greek)
         p = qlatin.find(quotation_azform)
@@ -100,14 +101,16 @@ def object_ot_bibref(o, quotation_greek = ""):
             print(f"Substring found: {quotation_azform} in {qlatin}")
             qlatin = quotation_azform
             text_n(2, quotation_greek) # continuing with this
+            ret["auto_change"] = "substring"
         else:
             # 2. General case:
             latintext_n(1, qlatin)
             latintext_n(2, quotation_azform)
-            best, qlatin = nearest12()
+            best, qlatin = nearest12() # use the dynamic variant
             print(f"Best string found: {quotation_azform} ~ {qlatin}: {best:.2f}%")
             o["quoted_text"] = latin_to_greek(qlatin)
             text_n(2, o["quoted_text"])
+            ret["auto_change"] = "substring_fuzzy"
 
     q = find_n(2, "LXX")
     ret["unique"] = (len(q) == 1)
@@ -125,6 +128,7 @@ def object_ot_bibref(o, quotation_greek = ""):
     return ret
 
 def object_nt_brst(nt_obj):
+    ret_obj = dict()
     ret = ""
     identifier = passage_str_list(nt_obj[0])
     identifier = f"{identifier[0]}-{identifier[1]},{identifier[2]}"
@@ -137,6 +141,8 @@ def object_nt_brst(nt_obj):
             return None
         ret += f' {gnt} {br_obj_nt["q_fullform"]} with\n'
         br_obj_ot = object_ot_bibref(get_object(nt_obj[1][0][1]), br_obj_nt["q_greek"])
+        if "auto_change" in br_obj_ot.keys():
+            ret_obj["auto_change"] = br_obj_ot["auto_change"]
         ret += f' LXX {br_obj_ot["q_fullform"]} based on\n'
         ret += f'  introduction {br_obj_nt["i_verseonly"]} a-z form {br_obj_nt["i_azform"]} moreover\n'
         ret += f'  fragment {br_obj_nt["q_verseonly"]} a-z form {br_obj_nt["q_azform"]}\n'
@@ -149,24 +155,37 @@ def object_nt_brst(nt_obj):
         else:
             ret += f"    differing by {distance:4.2f}%\n"
         ret += '  providing an overall cover of 100.00%.\n'
-        return ret
+        ret_obj["statement"] = ret
+        return ret_obj
     return None
 
+# Main loop...
 if not os.path.exists(generated_folder):
     os.makedirs(generated_folder)
+
+allcases = 0
 count = 0
+substring_type = 0
+substring_fuzzy_type = 0
 for ntb in nt_books_isbtf:
 # for ntb in ["Acta"]: # Use this to restrict run to certain books.
     nt_objects = extract_nt_objects(ntb)
+    allcases += len(nt_objects)
     print(f"{ntb} contains {len(nt_objects)} entries.")
     for nt_obj in nt_objects:
         try:
             processed = object_nt_brst(nt_obj)
-            if processed != None and len(processed) > 2: # FIXME
-                filename = (processed.split(" "))[1] + ".brst"
+            if processed != None:
+                statement = processed["statement"]
+                filename = (statement.split(" "))[1] + ".brst"
                 with open(generated_folder + "/" + filename, "w") as f:
-                    f.write(processed)
+                    f.write(statement)
                 count += 1
+                if "auto_change" in processed.keys():
+                    if processed["auto_change"] == "substring":
+                        substring_type += 1
+                    if processed["auto_change"] == "substring_fuzzy":
+                        substring_fuzzy_type += 1
         except KeyError:
             print(f"There is a fatal error when processing {nt_obj}:")
             raise
@@ -177,4 +196,5 @@ for ntb in nt_books_isbtf:
             break
     if count >= max_processing:
         break
-print(f"{count} entries processed")
+print(f"{count} of {allcases} entries have been processed.")
+print(f"OT fragments were: {substring_type} substring type, {substring_fuzzy_type} substring-fuzzy type.")
