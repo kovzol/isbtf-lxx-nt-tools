@@ -7,7 +7,7 @@ To run `generate-brst.py`, you need to have the bibref Python module also.
 You can find it in https://github.com/kovzol/bibref, folder `py`.
 
 Both Python files require the BeautifulSoup4 Python library. For example,
-on Ubuntu Linux systems, you need to have the package python-bs4 to have
+on Ubuntu Linux systems, you need to have the package `python3-bs4` to have
 it provided.
 
 ## Author
