@@ -23,6 +23,7 @@ def object_nt_bibref(o):
     :return: various parts of the object as dict
     """
     ret = dict()
+    o["quotation_text"] = o['quotation_text'].replace("\n", " ")
     # Search for exact position of the quotation text in gnt:
     bibref_passage_container = f'{o["book"]} {o["chapter"]}:{o["verse_start"]} {o["chapter"]}:{o["verse_end"]}'
     l_container = lookup_n(1, gnt + " " + bibref_passage_container)
@@ -44,7 +45,19 @@ def object_nt_bibref(o):
             match = m
             break
     if match == None:
-        raise Exception(f'Cannot identify "{o["quotation_text"]}" ~ {o["book"]} {o["chapter"]}:{o["verse_start"]} {o["chapter"]}:{o["verse_end"]}')
+        # No exact match. Let's try a fuzzy-substring match:
+        nt_verse = lookup_n(1, gnt + " " + container[0])
+        best, qlatin_fuzzy = nearest12()
+        print(f"Nearest fuzzy substring found: {qlatin} ~ {qlatin_fuzzy}: {best:.2f}%")
+        latintext_n(2, qlatin_fuzzy)
+        q = find_n(2, gnt)
+        for m in q:
+            m_book = (m[0].split(" "))[0]
+            if o["book"] == m_book and container[1] <= m[1] and m[2] <= container[2]:
+                match = m
+            break
+        if match == None:
+            raise Exception(f'Cannot identify "{o["quotation_text"]}" ~ {o["book"]} {o["chapter"]}:{o["verse_start"]} {o["chapter"]}:{o["verse_end"]}')
     ret["q_fullform"] = f'{match[0]} ({match[1]}-{match[2]}, length {match[2]-match[1]+1})'
     ret["q_verseonly"] = ret["q_fullform"].split(' ', 1)[1]
     ret["q_azform"] = qlatin
@@ -107,7 +120,7 @@ def object_ot_bibref(o, quotation_greek = ""):
             latintext_n(1, qlatin)
             latintext_n(2, quotation_azform)
             best, qlatin = nearest12() # use the dynamic variant
-            print(f"Best string found: {quotation_azform} ~ {qlatin}: {best:.2f}%")
+            print(f"Nearest fuzzy substring found: {quotation_azform} ~ {qlatin}: {best:.2f}%")
             o["quoted_text"] = latin_to_greek(qlatin)
             text_n(2, o["quoted_text"])
             ret["auto_change"] = "substring_fuzzy"
